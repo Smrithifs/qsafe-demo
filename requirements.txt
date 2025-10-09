@@ -1,0 +1,14 @@
+flask==2.3.3
+Flask-SocketIO==5.3.6
+pycryptodome==3.19.0
+colorama==0.4.6
+pytest==7.4.3
+cryptography==41.0.7
+websocket-client==1.6.4
+requests==2.31.0
+python-socketio[client]==5.9.0
+scapy==2.5.0
+pyshark==0.6
+streamlit==1.28.1
+plotly==5.17.0
+pandas==2.1.3

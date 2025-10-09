@@ -1,0 +1,47 @@
+# Q-SAFE Wireshark Display Filters
+# Use these filters to analyze Q-SAFE traffic in captured PCAP files
+
+# Basic Q-SAFE Traffic
+# Show all traffic on satellite port
+tcp.port == 5000
+
+# Show only Q-SAFE encrypted messages (contains JSON with encrypted_data)
+tcp.port == 5000 and frame contains "encrypted_data"
+
+# Show messages with specific algorithm
+tcp.port == 5000 and frame contains "RSA"
+
+# Show messages from specific device
+tcp.port == 5000 and frame contains "DEVICE_A"
+
+# Advanced Filters
+# Show large ciphertext payloads (likely encrypted messages)
+tcp.port == 5000 and tcp.len > 500
+
+# Show potential MITM attempts (modified packets)
+tcp.port == 5000 and tcp.analysis.retransmission
+
+# Show mesh networking traffic (direct device-to-device)
+tcp.port == 8080 or tcp.port == 8081
+
+# Colorization Rules for Wireshark
+# Add these as coloring rules in Wireshark (View -> Coloring Rules)
+
+# Green: Normal Q-SAFE encrypted messages
+tcp.port == 5000 and frame contains "encrypted_data" and frame contains "signature"
+
+# Yellow: Mesh fallback traffic  
+tcp.port == 8080 or tcp.port == 8081
+
+# Red: Potential attack traffic (malformed or suspicious)
+tcp.port == 5000 and not frame contains "signature"
+
+# Blue: Device registration messages
+tcp.port == 5000 and frame contains "register"
+
+# Analysis Tips:
+# 1. Look for consistent message structure in legitimate Q-SAFE traffic
+# 2. Check for proper JSON formatting and required fields
+# 3. Verify presence of encrypted_data, signature, and timestamp fields
+# 4. Compare ciphertext sizes - should be consistent for similar message types
+# 5. Look for replay attempts (identical ciphertext with different timestamps)
