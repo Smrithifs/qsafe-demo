@@ -1,0 +1,18 @@
+Q-SAFE MITM ATTACK ANALYSIS REPORT
+==================================================
+Generated: 2025-10-07 12:54:13
+Total packets captured: 0
+Attack attempts logged: 3
+PCAP file: logs/mitm_capture.pcap
+
+ATTACK SUMMARY
+--------------------
+
+SECURITY CONCLUSION: All attack attempts failed or were detected
+Q-SAFE cryptographic protection is effective against MITM attacks
+
+DETAILED LOG
+--------------------
+[12:52:13.656] [WARNING] MITM Interceptor started - monitoring Q-SAFE traffic
+[12:52:13.657] [WARNING] Starting packet capture on all interfaces
+[12:54:13.657] [WARNING] MITM Interceptor stopped

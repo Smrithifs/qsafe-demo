@@ -1,0 +1,42 @@
+Q-SAFE DEMO SAMPLE OUTPUT
+========================
+
+This file shows expected colorless output for PDF documentation.
+
+[12:34:56] [SATELLITE] [SECURE] Satellite server initialized
+[12:34:57] [A] [SECURE] Generated and saved new RSA keys
+[12:34:58] [A] [SECURE] Connected to satellite
+[12:34:59] [A] [SECURE] Registered with satellite: A
+[12:35:00] [B] [SECURE] Generated and saved new RSA keys
+[12:35:01] [B] [SECURE] Connected to satellite
+[12:35:02] [B] [SECURE] Registered with satellite: B
+
+=== NORMAL OPERATION ===
+[12:35:03] [A] [SECURE] Message sent to B via satellite
+[12:35:04] [SATELLITE] [SECURE] Forwarding ciphertext to B: a1b2c3d4...
+[12:35:05] [B] [SECURE] Message from A: Hello Device B! This is secure.
+
+=== SATELLITE OUTAGE ===
+[12:35:10] [SATELLITE] [WARNING] Satellite status: OFFLINE
+[12:35:11] [A] [WARNING] Satellite unavailable - attempting mesh fallback
+[12:35:12] [A] [WARNING] Message sent to B via mesh
+[12:35:13] [B] [WARNING] Received mesh message from A
+
+=== ATTACK SIMULATION ===
+[12:35:20] [ATTACKER] [BREACH] Attempting MITM attack
+[12:35:21] [ATTACKER] [BREACH] Injected modified message
+[12:35:22] [B] [BREACH] Invalid signature from A - possible MITM attack!
+[12:35:23] [ATTACKER] [BREACH] Attempting replay attack
+[12:35:24] [B] [BREACH] Message from A too old - possible replay attack!
+
+=== DEVICE CAPTURE ===
+[12:35:30] [B] [BREACH] CAPTURE DETECTED - Initiating self-destruct!
+[12:35:31] [B] [BREACH] Wiped key file: private_key.enc
+[12:35:32] [B] [BREACH] SELF-DESTRUCT COMPLETE - DEVICE DISABLED
+[12:35:33] [KEY_ATTACKER] [BREACH] Attempting key exfiltration from captured device B
+[12:35:34] [KEY_ATTACKER] [BREACH] SELF-DESTRUCT SUCCESSFUL: No keys recovered
+
+COLOR MAPPING:
+- SECURE (Green): Normal secure operations
+- WARNING (Yellow): Mesh fallback, satellite outage
+- BREACH (Red): Attacks, capture events, security failures
