@@ -1,0 +1,4 @@
+🛰️  Q-SAFE Satellite Server Starting...
+📡 Dashboard: http://localhost:5000
+🔒 Security: Satellite cannot decrypt messages
+[19:54:37] [SATELLITE] [SECURE] Satellite server initialized

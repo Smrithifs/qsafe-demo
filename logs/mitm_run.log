@@ -1,0 +1,4 @@
+[12:52:13.656] [ATTACKER] [MITM] [WARNING] MITM Interceptor started - monitoring Q-SAFE traffic
+[12:52:13.657] [ATTACKER] [MITM] [WARNING] Starting packet capture on all interfaces
+[12:54:13.657] [ATTACKER] [MITM] [WARNING] MITM Interceptor stopped
+[12:54:13.659] [ATTACKER] [MITM] [WARNING] Generated MITM report: logs/mitm_report.txt
