@@ -132,8 +132,8 @@ class CryptoBackend:
         # Use Kyber512 KEM to encapsulate the session key
         ciphertext, shared_secret = kyber_encrypt(kyber_pk)
         
-        # Derive session key from shared secret and original session key
-        derived_key = hashlib.sha256(shared_secret + session_key).digest()
+        # Use the shared secret directly as the encryption key
+        derived_key = hashlib.sha256(shared_secret).digest()
         
         # Encrypt the actual session key with derived key
         cipher = AES.new(derived_key, AES.MODE_GCM)
@@ -185,7 +185,7 @@ class CryptoBackend:
         shared_secret = kyber_decrypt(kyber_sk, kyber_ciphertext)
         
         # Derive the same key
-        derived_key = hashlib.sha256(shared_secret + encrypted_key).digest()
+        derived_key = hashlib.sha256(shared_secret).digest()
         
         # Decrypt the session key
         cipher = AES.new(derived_key, AES.MODE_GCM, nonce=nonce)
