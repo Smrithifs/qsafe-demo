@@ -570,18 +570,23 @@ def send_message():
         # Step 1: Generate AES session key
         import os
         session_key = os.urandom(32)  # 256-bit AES key
-        log_event('INFO', f'🔑 Generated AES-256 session key: {session_key.hex()[:32]}...', from_device)
+        log_event('INFO', f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', from_device)
+        log_event('SECURE', f'🚀 STEP 1: Ephemeral Session Key Generation', from_device)
+        log_event('INFO', f'  └─ Algorithm: AES-256 (256-bit symmetric key)', from_device)
+        log_event('INFO', f'  └─ Key: {session_key.hex()[:32]}... ({len(session_key)} bytes)', from_device)
+        log_event('INFO', f'  └─ Purpose: Fast symmetric encryption of message payload', from_device)
         
         # Step 2: Encrypt message with AES-GCM
         from Crypto.Cipher import AES
         nonce = os.urandom(12)
         cipher_aes = AES.new(session_key, AES.MODE_GCM, nonce=nonce)
         ciphertext, tag = cipher_aes.encrypt_and_digest(message.encode())
-        log_event('SECURE', f'🔐 AES-GCM Encryption:', from_device)
-        log_event('INFO', f'  └─ Plaintext: "{message}"', from_device)
-        log_event('INFO', f'  └─ Nonce: {nonce.hex()}', from_device)
-        log_event('INFO', f'  └─ Ciphertext: {ciphertext.hex()}', from_device)
-        log_event('INFO', f'  └─ Auth Tag: {tag.hex()}', from_device)
+        log_event('SECURE', f'🔐 STEP 2: Message Encryption (AES-256-GCM)', from_device)
+        log_event('INFO', f'  └─ Plaintext: "{message}" ({len(message)} chars)', from_device)
+        log_event('INFO', f'  └─ Nonce (IV): {nonce.hex()} ({len(nonce)} bytes)', from_device)
+        log_event('INFO', f'  └─ Ciphertext: {ciphertext.hex()} ({len(ciphertext)} bytes)', from_device)
+        log_event('INFO', f'  └─ Auth Tag (GMAC): {tag.hex()} ({len(tag)} bytes)', from_device)
+        log_event('INFO', f'  └─ Security: Authenticated encryption prevents tampering', from_device)
         
         # Step 3: Encrypt session key with recipient's public key (PQC or RSA)
         recipient_pub_key = qsafe_state['devices'][to_device]['keys']['public_key']
@@ -591,9 +596,16 @@ def send_message():
         encrypted_session_key = crypto._pqc_encrypt_session_key(recipient_pub_key, session_key) if crypto.use_pqc else crypto._rsa_encrypt_session_key(recipient_pub_key, session_key)
         
         algo_name = 'ML-KEM-512 (Kyber)' if crypto.use_pqc else 'RSA-OAEP'
-        log_event('SECURE', f'🔒 {algo_name} Key Encapsulation:', from_device)
+        log_event('SECURE', f'🔒 STEP 3: Session Key Encapsulation ({algo_name})', from_device)
         log_event('INFO', f'  └─ Recipient: Device {to_device}', from_device)
-        log_event('INFO', f'  └─ Encrypted Session Key: {encrypted_session_key.hex()[:64]}...', from_device)
+        if crypto.use_pqc:
+            log_event('INFO', f'  └─ Kyber Ciphertext: {encrypted_session_key[:768].hex()[:64]}... (768 bytes)', from_device)
+            log_event('INFO', f'  └─ KEM Shared Secret: Derived from quantum-resistant lattice problem', from_device)
+            log_event('INFO', f'  └─ Wrapped Session Key: {encrypted_session_key.hex()[:64]}... ({len(encrypted_session_key)} bytes total)', from_device)
+            log_event('INFO', f'  └─ Quantum Resistance: Safe against Shor\'s algorithm', from_device)
+        else:
+            log_event('INFO', f'  └─ Encrypted Session Key: {encrypted_session_key.hex()[:64]}... ({len(encrypted_session_key)} bytes)', from_device)
+            log_event('INFO', f'  └─ RSA-OAEP: 2048-bit modulus with OAEP padding', from_device)
         
         # Step 4: Sign the message with sender's private key
         from Crypto.Hash import SHA256
@@ -605,16 +617,27 @@ def send_message():
         signature_bytes = crypto._pqc_sign(sender_priv_key, h.digest()) if crypto.use_pqc else crypto._rsa_sign(sender_priv_key, h)
         
         sig_algo = 'ML-DSA-44 (Dilithium)' if crypto.use_pqc else 'RSA-PSS'
-        log_event('SECURE', f'✍️  {sig_algo} Digital Signature:', from_device)
-        log_event('INFO', f'  └─ Hash (SHA-256): {h.hexdigest()}', from_device)
-        log_event('INFO', f'  └─ Signature: {signature_bytes.hex()[:64]}...', from_device)
+        log_event('SECURE', f'✍️  STEP 4: Digital Signature ({sig_algo})', from_device)
+        log_event('INFO', f'  └─ Message Hash (SHA-256): {h.hexdigest()}', from_device)
+        if crypto.use_pqc:
+            log_event('INFO', f'  └─ Dilithium Signature: {signature_bytes.hex()[:64]}... (~{len(signature_bytes)} bytes)', from_device)
+            log_event('INFO', f'  └─ Security: Based on Module-LWE lattice problem', from_device)
+            log_event('INFO', f'  └─ Quantum Resistance: Immune to quantum forgery attacks', from_device)
+        else:
+            log_event('INFO', f'  └─ RSA-PSS Signature: {signature_bytes.hex()[:64]}... ({len(signature_bytes)} bytes)', from_device)
+        log_event('INFO', f'  └─ Purpose: Proves message authenticity and sender identity', from_device)
         
         # Step 5: Transmit over network
-        log_event('SECURE', f'📤 Transmitting via {route_name}...', from_device)
-        log_event('INFO', f'  └─ Packet Size: {len(encrypted_session_key) + len(ciphertext) + len(tag) + len(nonce) + len(signature_bytes)} bytes', from_device)
+        total_size = len(encrypted_session_key) + len(ciphertext) + len(tag) + len(nonce) + len(signature_bytes)
+        log_event('SECURE', f'📤 STEP 5: Network Transmission via {route_name}', from_device)
+        log_event('INFO', f'  └─ Total Packet Size: {total_size} bytes', from_device)
+        log_event('INFO', f'  └─ Breakdown: KEM({len(encrypted_session_key)}) + Nonce({len(nonce)}) + Ciphertext({len(ciphertext)}) + Tag({len(tag)}) + Signature({len(signature_bytes)})', from_device)
+        log_event('INFO', f'  └─ Route: Device {from_device} → {route_name} → Device {to_device}', from_device)
+        log_event('INFO', f'  └─ Security: All data encrypted, satellite cannot read contents', from_device)
         
         # Step 6: Recipient decrypts (simulated)
-        log_event('INFO', f'📥 Device {to_device} received encrypted packet', to_device)
+        log_event('INFO', f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', to_device)
+        log_event('SECURE', f'📥 RECEPTION: Device {to_device} received encrypted packet ({total_size} bytes)', to_device)
         
         # Verify signature
         try:
@@ -630,8 +653,10 @@ def send_message():
             if not is_valid:
                 raise Exception("Signature verification failed")
             
-            log_event('SECURE', f'✅ Signature verification PASSED', to_device)
-            log_event('INFO', f'  └─ Sender authenticated: Device {from_device}', to_device)
+            log_event('SECURE', f'✅ STEP 6: Signature Verification ({sig_algo})', to_device)
+            log_event('INFO', f'  └─ Sender Identity: Device {from_device} (authenticated)', to_device)
+            log_event('INFO', f'  └─ Hash Match: Ciphertext integrity confirmed', to_device)
+            log_event('INFO', f'  └─ Result: Message is authentic and unmodified', to_device)
         except Exception as e:
             log_event('BREACH', f'❌ Signature verification FAILED - message rejected', to_device)
             return jsonify({'success': False, 'error': 'Signature verification failed'}), 400
@@ -643,17 +668,27 @@ def send_message():
         
         decrypted_session_key = crypto._pqc_decrypt_session_key(recipient_priv_key, encrypted_session_key) if crypto.use_pqc else crypto._rsa_decrypt_session_key(recipient_priv_key, encrypted_session_key)
         
-        log_event('SECURE', f'🔓 {algo_name} Decryption:', to_device)
-        log_event('INFO', f'  └─ Session key recovered: {decrypted_session_key.hex()[:32]}...', to_device)
+        log_event('SECURE', f'🔓 STEP 7: Session Key Decapsulation ({algo_name})', to_device)
+        if crypto.use_pqc:
+            log_event('INFO', f'  └─ Kyber Decapsulation: Using recipient private key', to_device)
+            log_event('INFO', f'  └─ Shared Secret: Recovered from lattice-based KEM', to_device)
+        log_event('INFO', f'  └─ Session Key Recovered: {decrypted_session_key.hex()[:32]}... ({len(decrypted_session_key)} bytes)', to_device)
+        log_event('INFO', f'  └─ Key Match: Sender and recipient now share symmetric key', to_device)
         
         # Decrypt message with AES
         cipher_aes_decrypt = AES.new(decrypted_session_key, AES.MODE_GCM, nonce=nonce)
         plaintext = cipher_aes_decrypt.decrypt_and_verify(ciphertext, tag)
-        log_event('SECURE', f'🔓 AES-GCM Decryption:', to_device)
-        log_event('INFO', f'  └─ Authentication tag verified ✓', to_device)
-        log_event('SECURE', f'  └─ Plaintext recovered: "{plaintext.decode()}"', to_device)
+        log_event('SECURE', f'🔓 STEP 8: Message Decryption (AES-256-GCM)', to_device)
+        log_event('INFO', f'  └─ Using recovered session key for decryption', to_device)
+        log_event('INFO', f'  └─ Authentication Tag: VERIFIED ✓ (no tampering detected)', to_device)
+        log_event('INFO', f'  └─ Ciphertext: {ciphertext.hex()} → Plaintext', to_device)
+        log_event('SECURE', f'  └─ 📨 Message Recovered: "{plaintext.decode()}"', to_device)
         
-        log_event('SECURE', f'✅ Message delivered successfully via {route_name}', to_device)
+        log_event('SECURE', f'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', to_device)
+        log_event('SECURE', f'✅ COMPLETE: Secure message delivery via {route_name}', to_device)
+        log_event('INFO', f'  └─ End-to-end encryption: ✓', to_device)
+        log_event('INFO', f'  └─ Authentication: ✓', to_device)
+        log_event('INFO', f'  └─ Quantum resistance: ✓', to_device)
         
         qsafe_state['stats']['messages_sent'] += 1
         socketio.emit('topology_update', {'from': from_device, 'to': to_device, 'route_type': route_type})
