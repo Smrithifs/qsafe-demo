@@ -59,6 +59,7 @@ qsafe_state = {
     'mission_phase': 'INIT',
     'mission_running': False,
     'logs': [],
+    'crypto_algorithm': None,
     'stats': {
         'messages_sent': 0,
         'attacks_blocked': 0,
@@ -252,7 +253,7 @@ UNIFIED_HTML = """
                     <div>Device A: <span id="status-a">OFFLINE</span></div>
                     <div>Device B: <span id="status-b">OFFLINE</span></div>
                     <div>Satellite: <span id="status-sat">ONLINE</span></div>
-                    <div>Encryption: <span id="crypto-status">RSA + AES-256-GCM</span></div>
+                    <div>Encryption: <span id="crypto-status">Initializing...</span></div>
                 </div>
             </div>
 
@@ -303,6 +304,12 @@ UNIFIED_HTML = """
             if (state.devices) {
                 document.getElementById('status-a').textContent = state.devices.A.status.toUpperCase();
                 document.getElementById('status-b').textContent = state.devices.B.status.toUpperCase();
+                
+                // Update crypto status based on whether keys are generated
+                const hasKeys = state.devices.A.keys || state.devices.B.keys;
+                if (hasKeys) {
+                    document.getElementById('crypto-status').textContent = state.crypto_algorithm || 'PQC + AES-256-GCM';
+                }
             }
             if (state.mission_phase) {
                 document.getElementById('phase-indicator').textContent = state.mission_phase;
@@ -493,7 +500,8 @@ def generate_keys():
     try:
         for device_id in ['A', 'B']:
             if qsafe_state['devices'][device_id]['status'] == 'online':
-                log_event('INFO', f'🔧 Generating RSA-2048 key pair for Device {device_id}...', device_id)
+                algo_type = 'Post-Quantum (ML-KEM-512 + ML-DSA-44)' if crypto.use_pqc else 'Classical (RSA-2048)'
+                log_event('INFO', f'🔧 Generating {algo_type} key pair for Device {device_id}...', device_id)
                 
                 # Generate keys using CryptoBackend
                 private_key, public_key = crypto.generate_keypair()
@@ -505,11 +513,22 @@ def generate_keys():
                 # Log detailed key generation info
                 pub_key_hex = public_key.hex()[:64]
                 priv_key_hex = private_key.hex()[:64]
-                log_event('SECURE', f'✅ RSA Public Key Generated: {pub_key_hex}...', device_id)
-                log_event('SECURE', f'🔐 RSA Private Key Generated: {priv_key_hex}...', device_id)
-                log_event('INFO', f'📊 Key Size: 2048 bits | Exponent: 65537 | Algorithm: RSA-OAEP', device_id)
-                log_event('INFO', f'🔒 Keys stored securely in device memory', device_id)
                 
+                if crypto.use_pqc:
+                    log_event('SECURE', f'✅ Kyber-512 Public Key Generated: {pub_key_hex}...', device_id)
+                    log_event('SECURE', f'🔐 Kyber-512 Private Key Generated: {priv_key_hex}...', device_id)
+                    log_event('INFO', f'📊 Algorithm: ML-KEM-512 (Kyber) + ML-DSA-44 (Dilithium)', device_id)
+                    log_event('INFO', f'🛡️  Quantum-resistant encryption active', device_id)
+                else:
+                    log_event('SECURE', f'✅ RSA Public Key Generated: {pub_key_hex}...', device_id)
+                    log_event('SECURE', f'🔐 RSA Private Key Generated: {priv_key_hex}...', device_id)
+                    log_event('INFO', f'📊 Key Size: 2048 bits | Exponent: 65537 | Algorithm: RSA-OAEP', device_id)
+                
+                log_event('INFO', f'🔒 Keys stored securely in device memory', device_id)
+        
+        # Update crypto algorithm status
+        qsafe_state['crypto_algorithm'] = 'ML-KEM-512 + ML-DSA-44 + AES-256-GCM' if crypto.use_pqc else 'RSA-2048 + AES-256-GCM'
+        
         socketio.emit('full_state_update', qsafe_state)
         return jsonify({'success': True})
     except Exception as e:
