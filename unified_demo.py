@@ -564,48 +564,67 @@ def send_message():
         log_event('INFO', f'  └─ Ciphertext: {ciphertext.hex()}', from_device)
         log_event('INFO', f'  └─ Auth Tag: {tag.hex()}', from_device)
         
-        # Step 3: Encrypt session key with recipient's RSA public key
-        from Crypto.Cipher import PKCS1_OAEP
-        from Crypto.PublicKey import RSA
-        recipient_pub_key = RSA.import_key(qsafe_state['devices'][to_device]['keys']['public_key'])
-        cipher_rsa = PKCS1_OAEP.new(recipient_pub_key)
-        encrypted_session_key = cipher_rsa.encrypt(session_key)
-        log_event('SECURE', f'🔒 RSA-OAEP Key Encapsulation:', from_device)
+        # Step 3: Encrypt session key with recipient's public key (PQC or RSA)
+        recipient_pub_key = qsafe_state['devices'][to_device]['keys']['public_key']
+        if isinstance(recipient_pub_key, str):
+            recipient_pub_key = recipient_pub_key.encode()
+        
+        encrypted_session_key = crypto._pqc_encrypt_session_key(recipient_pub_key, session_key) if crypto.use_pqc else crypto._rsa_encrypt_session_key(recipient_pub_key, session_key)
+        
+        algo_name = 'ML-KEM-512 (Kyber)' if crypto.use_pqc else 'RSA-OAEP'
+        log_event('SECURE', f'🔒 {algo_name} Key Encapsulation:', from_device)
         log_event('INFO', f'  └─ Recipient: Device {to_device}', from_device)
         log_event('INFO', f'  └─ Encrypted Session Key: {encrypted_session_key.hex()[:64]}...', from_device)
         
         # Step 4: Sign the message with sender's private key
-        from Crypto.Signature import pkcs1_15
         from Crypto.Hash import SHA256
-        sender_priv_key = RSA.import_key(qsafe_state['devices'][from_device]['keys']['private_key'])
+        sender_priv_key = qsafe_state['devices'][from_device]['keys']['private_key']
+        if isinstance(sender_priv_key, str):
+            sender_priv_key = sender_priv_key.encode()
+        
         h = SHA256.new(ciphertext)
-        signature = pkcs1_15.new(sender_priv_key).sign(h)
-        log_event('SECURE', f'✍️  RSA-PSS Digital Signature:', from_device)
+        signature_bytes = crypto._pqc_sign(sender_priv_key, h.digest()) if crypto.use_pqc else crypto._rsa_sign(sender_priv_key, h)
+        
+        sig_algo = 'ML-DSA-44 (Dilithium)' if crypto.use_pqc else 'RSA-PSS'
+        log_event('SECURE', f'✍️  {sig_algo} Digital Signature:', from_device)
         log_event('INFO', f'  └─ Hash (SHA-256): {h.hexdigest()}', from_device)
-        log_event('INFO', f'  └─ Signature: {signature.hex()[:64]}...', from_device)
+        log_event('INFO', f'  └─ Signature: {signature_bytes.hex()[:64]}...', from_device)
         
         # Step 5: Transmit over network
         log_event('SECURE', f'📤 Transmitting via {route_name}...', from_device)
-        log_event('INFO', f'  └─ Packet Size: {len(encrypted_session_key) + len(ciphertext) + len(tag) + len(nonce) + len(signature)} bytes', from_device)
+        log_event('INFO', f'  └─ Packet Size: {len(encrypted_session_key) + len(ciphertext) + len(tag) + len(nonce) + len(signature_bytes)} bytes', from_device)
         
         # Step 6: Recipient decrypts (simulated)
         log_event('INFO', f'📥 Device {to_device} received encrypted packet', to_device)
         
         # Verify signature
         try:
-            sender_pub_key = RSA.import_key(qsafe_state['devices'][from_device]['keys']['public_key'])
-            pkcs1_15.new(sender_pub_key).verify(h, signature)
+            sender_pub_key = qsafe_state['devices'][from_device]['keys']['public_key']
+            if isinstance(sender_pub_key, str):
+                sender_pub_key = sender_pub_key.encode()
+            
+            if crypto.use_pqc:
+                is_valid = crypto._pqc_verify(sender_pub_key, h.digest(), signature_bytes)
+            else:
+                is_valid = crypto._rsa_verify(sender_pub_key, h, signature_bytes)
+            
+            if not is_valid:
+                raise Exception("Signature verification failed")
+            
             log_event('SECURE', f'✅ Signature verification PASSED', to_device)
             log_event('INFO', f'  └─ Sender authenticated: Device {from_device}', to_device)
-        except:
+        except Exception as e:
             log_event('BREACH', f'❌ Signature verification FAILED - message rejected', to_device)
             return jsonify({'success': False, 'error': 'Signature verification failed'}), 400
         
         # Decrypt session key with recipient's private key
-        recipient_priv_key = RSA.import_key(qsafe_state['devices'][to_device]['keys']['private_key'])
-        cipher_rsa_decrypt = PKCS1_OAEP.new(recipient_priv_key)
-        decrypted_session_key = cipher_rsa_decrypt.decrypt(encrypted_session_key)
-        log_event('SECURE', f'🔓 RSA-OAEP Decryption:', to_device)
+        recipient_priv_key = qsafe_state['devices'][to_device]['keys']['private_key']
+        if isinstance(recipient_priv_key, str):
+            recipient_priv_key = recipient_priv_key.encode()
+        
+        decrypted_session_key = crypto._pqc_decrypt_session_key(recipient_priv_key, encrypted_session_key) if crypto.use_pqc else crypto._rsa_decrypt_session_key(recipient_priv_key, encrypted_session_key)
+        
+        log_event('SECURE', f'🔓 {algo_name} Decryption:', to_device)
         log_event('INFO', f'  └─ Session key recovered: {decrypted_session_key.hex()[:32]}...', to_device)
         
         # Decrypt message with AES
