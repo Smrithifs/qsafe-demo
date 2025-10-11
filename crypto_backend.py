@@ -175,11 +175,11 @@ class CryptoBackend:
         kyber_sk = bytes.fromhex(pqc_data['kyber_private'])
         
         # Parse the encrypted data
-        # Format: kyber_ciphertext (1088 bytes) || nonce (16) || encrypted_key (32) || tag (16)
-        kyber_ciphertext = encrypted_session_key[:1088]
-        nonce = encrypted_session_key[1088:1104]
-        encrypted_key = encrypted_session_key[1104:1136]
-        tag = encrypted_session_key[1136:]
+        # Format: kyber_ciphertext (768 bytes for ML-KEM-512) || nonce (16) || encrypted_key (32) || tag (16)
+        kyber_ciphertext = encrypted_session_key[:768]
+        nonce = encrypted_session_key[768:784]
+        encrypted_key = encrypted_session_key[784:816]
+        tag = encrypted_session_key[816:]
         
         # Decapsulate using Kyber512
         shared_secret = kyber_decrypt(kyber_sk, kyber_ciphertext)
