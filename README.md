@@ -1,116 +1,254 @@
-# Q-SAFE: Quantum-Safe Mission Communications Demo
+# Q-SAFE: Quantum-Safe Military Communications Demo
 
-## 🚀 Integrated Mission Simulation + Dashboard + MITM Visualization
+## 🚀 Post-Quantum Cryptography for Secure Military Communications
 
-Complete interactive demo combining **Mission Simulation Flow**, **MITM Visualization**, and **Real-time Dashboard** into a single cohesive judge presentation demonstrating post-quantum secure communications under attack.
+**Q-SAFE** demonstrates **NIST-standardized post-quantum cryptography** (ML-KEM-512 + ML-DSA-44) protecting military communications against both classical and quantum computer attacks. Features real-time attack simulation, detailed cryptographic operation logging, and interactive visualization.
 
-## 🎯 One-Click Demo Launch
+## 🎯 Quick Start
 
 ```bash
-./demo_run.sh
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch unified demo
+python3 unified_demo.py
 ```
 
-**Judge Dashboard**: http://localhost:8501  
-**Mission Control**: http://localhost:5003
+**Dashboard**: http://localhost:5001
 
-## 🎬 Automated Mission Flow
+## ✨ Key Features
 
-### Complete Simulation Sequence
-1. **Device Initialization**: Auto-launch Device A, Device B, Satellite, MITM module
-2. **Post-Quantum Key Exchange**: Generate Kyber512 keys + establish AES session
-3. **Mission Communications**: Send 3 secure messages (normal military traffic)
-4. **Satellite Failure**: Automatic fallback to peer-to-peer mesh (yellow routes)
-5. **MITM Attack Simulation**:
-   - Decryption attempts (fail - red logs)
-   - Ciphertext modification (tamper detected)
-   - Packet replay (nonce mismatch blocked)
-6. **Device Capture**: Trigger key wipe + disable communication
-7. **Mission Summary**: Complete report with integrity score + PCAP references
+### 🔐 NIST-Standardized Post-Quantum Cryptography
+- **ML-KEM-512 (Kyber)**: Quantum-resistant key encapsulation mechanism (FIPS 203)
+- **ML-DSA-44 (Dilithium)**: Quantum-resistant digital signatures (FIPS 204)
+- **AES-256-GCM**: Authenticated symmetric encryption
+- **Hybrid Architecture**: PQC for key exchange + AES for performance
 
-## 🎮 Interactive Streamlit Dashboard
+### 📊 Real-Time Cryptographic Transparency
+- **Step-by-step logging**: See every cryptographic operation in detail
+- **8-step encryption process**: From session key generation to message delivery
+- **Educational explanations**: Learn how quantum-safe encryption works
+- **Byte-level visibility**: View ciphertexts, signatures, and keys in hex
 
-### Real-Time Network Topology
-- **Live visualization** of Device A ↔ Satellite ↔ Device B ↔ MITM
-- **Animated message arrows**:
-  - 🟢 Secure satellite route
-  - 🟡 Mesh network fallback  
-  - 🔴 Intercepted/tampered packets (blocked)
+### 🛡️ Attack Simulation & Defense
+- **MITM Decryption Attempts**: 0% success rate (quantum-resistant)
+- **Packet Tampering**: Detected by GCM authentication tags
+- **Replay Attacks**: Blocked by nonce-based freshness
+- **Device Capture**: Self-destruct protocol wipes keys
+- **Real-time blocking**: Watch attacks fail in live logs
 
-### Mission Control Panel
-- **Live console logs** (color-coded: green/yellow/red)
-- **Encryption status**: Kyber512 + AES-GCM indicators
-- **MITM control buttons**: Start MITM, Tamper, Replay, Self-Destruct
-- **PCAP downloads**: Direct Wireshark integration
-- **Mission statistics**: Messages sent, attacks blocked, integrity score
+### 🌐 Military-Grade Resilience
+- **Zero-knowledge satellite**: Cannot decrypt messages (end-to-end encryption)
+- **Mesh network fallback**: Automatic P2P if satellite fails
+- **Forward secrecy**: Ephemeral session keys per message
+- **Interactive dashboard**: Control panel with live network topology
 
-### Military-Themed UI
-- **Dark mode** with glowing packet routes
-- **Real-time updates** via WebSocket synchronization
-- **Judge presentation mode** with one-click mission execution
+## 🎮 How to Use the Demo
 
-## 🔐 Security Validation Features
+### 1. Start Mission
+Click **"Start Mission"** to initialize the system
 
-### Post-Quantum Cryptography
-- **Kyber512** key exchange (quantum-resistant)
-- **AES-256-GCM** session encryption
-- **Zero-knowledge satellite** (cannot decrypt messages)
-- **Self-destruct protocol** with secure key wiping
+### 2. Connect Devices
+- Click **"Connect Device A"**
+- Click **"Connect Device B"**
+- Devices show as **ONLINE** in status panel
 
-### Attack Resistance Demonstration
-- **MITM Interception**: ✅ 0% success rate (all attacks blocked)
-- **Packet Tampering**: ✅ Authentication tag verification
-- **Replay Attacks**: ✅ Nonce-based freshness protection
-- **Device Capture**: ✅ Emergency key destruction
-
-### Evidence Generation
-- **mission_traffic.pcap** - Encrypted communications
-- **mitm_attacks.pcap** - Blocked attack attempts
-- **mission_summary.txt** - Complete analysis report
-- **Real-time logs** with cryptographic metadata
-
-## 📊 Live Mission Dashboard Features
-
-### Network Topology Visualization
+### 3. Generate Quantum-Safe Keys
+Click **"Generate Keys"** - Watch the logs show:
 ```
-    DEVICE_A ←→ SATELLITE ←→ DEVICE_B
-         ↑         ↑         ↑
-         └─── MITM_NODE ────┘
-              (blocked)
+🔧 Generating Post-Quantum (ML-KEM-512 + ML-DSA-44) key pair...
+✅ Kyber-512 Public Key Generated
+🔐 Kyber-512 Private Key Generated
+🛡️  Quantum-resistant encryption active
 ```
 
-### Mission Phase Tracking
-- **INIT**: Device connection and setup
-- **KEY_EXCHANGE**: Post-quantum key generation
-- **MISSION_TRAFFIC**: Secure message transmission
-- **SATELLITE_FAILURE**: Mesh network fallback
-- **UNDER_ATTACK**: MITM simulation active
-- **DEVICE_CAPTURE**: Self-destruct protocol
-- **COMPLETE**: Mission summary generation
+### 4. Send Encrypted Message
+- Select **From Device** (A or B)
+- Select **To Device** (B or A)
+- Type your message
+- Click **"Send Message"**
 
-### Real-Time Statistics
-- Messages sent: Real-time counter
-- Attacks blocked: 100% success rate
-- Integrity score: Maintained at 100%
-- Security status: Quantum-safe active
+Watch the detailed 8-step encryption process:
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 STEP 1: Ephemeral Session Key Generation
+  └─ Algorithm: AES-256 (256-bit symmetric key)
+  └─ Purpose: Fast symmetric encryption of message payload
 
-## 🎯 Judge Presentation Mode
+🔐 STEP 2: Message Encryption (AES-256-GCM)
+  └─ Plaintext: "Your message" (X chars)
+  └─ Ciphertext: [hex] (X bytes)
+  └─ Auth Tag (GMAC): [hex] (16 bytes)
 
-### Automated Demo Flow
-1. **Single "Run Demo" button** launches complete simulation
-2. **Live message visualization** with animated packet flows
-3. **Real-time attack blocking** with visual confirmation
-4. **Automatic evidence generation** (PCAPs + reports)
-5. **"Quantum-Safe Communication Active" banner** after key exchange
-6. **Automatic cleanup** after demo completion
+🔒 STEP 3: Session Key Encapsulation (ML-KEM-512)
+  └─ Kyber Ciphertext: [hex]... (768 bytes)
+  └─ Quantum Resistance: Safe against Shor's algorithm
 
-### Validation Checklist
-- [ ] Post-quantum encryption (Kyber512) active
-- [ ] All MITM attacks show 0% success rate
-- [ ] Wireshark PCAPs confirm no plaintext leakage
-- [ ] Self-destruct completely wipes keys
-- [ ] Mesh fallback maintains security
-- [ ] Real-time topology reflects all network changes
-- [ ] Mission summary shows 100% integrity score
+✍️  STEP 4: Digital Signature (ML-DSA-44)
+  └─ Dilithium Signature: [hex]... (~2420 bytes)
+  └─ Quantum Resistance: Immune to quantum forgery attacks
+
+📤 STEP 5: Network Transmission via SATELLITE
+  └─ Total Packet Size: X bytes
+  └─ Security: All data encrypted, satellite cannot read contents
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📥 RECEPTION: Device B received encrypted packet
+
+✅ STEP 6: Signature Verification (ML-DSA-44)
+  └─ Sender Identity: Device A (authenticated)
+  └─ Result: Message is authentic and unmodified
+
+🔓 STEP 7: Session Key Decapsulation (ML-KEM-512)
+  └─ Kyber Decapsulation: Using recipient private key
+  └─ Session Key Recovered: [hex]...
+
+🔓 STEP 8: Message Decryption (AES-256-GCM)
+  └─ Authentication Tag: VERIFIED ✓ (no tampering detected)
+  └─ 📨 Message Recovered: "Your message"
+
+✅ COMPLETE: Secure message delivery via SATELLITE
+  └─ End-to-end encryption: ✓
+  └─ Authentication: ✓
+  └─ Quantum resistance: ✓
+```
+
+### 5. Simulate Attacks
+Click attack buttons to see defenses in action:
+- **"Decrypt Attack"**: MITM tries to decrypt → **BLOCKED** (quantum-resistant)
+- **"Tamper Attack"**: Modify ciphertext → **DETECTED** (GCM tag fails)
+- **"Replay Attack"**: Resend old packet → **BLOCKED** (nonce cache)
+- **"Capture Device"**: Self-destruct wipes keys → **PROTECTED** (forward secrecy)
+
+### 6. Toggle Satellite
+Click **"Toggle Satellite"** to simulate failure:
+- System automatically switches to **MESH NETWORK** (peer-to-peer)
+- Security maintained with same quantum-safe encryption
+
+## 🛡️ Security Properties
+
+### Quantum Resistance
+| Attack Type | Traditional (RSA/ECC) | Q-SAFE (PQC) |
+|-------------|----------------------|--------------|
+| Shor's Algorithm | ❌ Broken | ✅ Secure |
+| Grover's Algorithm | ⚠️ Weakened | ✅ Secure |
+| MITM Decryption | ❌ Vulnerable (with quantum) | ✅ Protected |
+| Signature Forgery | ❌ Vulnerable (with quantum) | ✅ Protected |
+
+### Attack Defense Matrix
+| Attack Vector | Detection Method | Success Rate |
+|---------------|-----------------|--------------|
+| Packet Decryption | Quantum-resistant KEM | 0% |
+| Ciphertext Tampering | GCM authentication tag | 0% (detected) |
+| Replay Attack | Nonce freshness check | 0% (blocked) |
+| Signature Forgery | Dilithium verification | 0% |
+| Device Capture | Self-destruct protocol | Low impact (forward secrecy) |
+| Satellite Compromise | Zero-knowledge relay | 0% (cannot decrypt) |
+
+### Cryptographic Specifications
+- **Key Exchange**: ML-KEM-512 (Kyber) - 768-byte ciphertext
+- **Digital Signatures**: ML-DSA-44 (Dilithium) - ~2420-byte signatures
+- **Symmetric Encryption**: AES-256-GCM - 256-bit keys, 128-bit auth tags
+- **Hash Function**: SHA-256 for message digests
+- **Session Keys**: Ephemeral (fresh per message)
+- **Forward Secrecy**: Yes (session keys not stored)
+
+## 🏗️ Technical Architecture
+
+### System Components
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   unified_demo.py                       │
+│              Flask + SocketIO Web Server                │
+│                    (Port 5001)                          │
+└────────────┬────────────────────────────────────────────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+┌───▼────────┐  ┌────▼──────────┐
+│ Device A   │  │  Device B     │
+│ (Sender)   │  │  (Receiver)   │
+└───┬────────┘  └────┬──────────┘
+    │                │
+    └────────┬───────┘
+             │
+    ┌────────▼────────┐
+    │   Satellite     │
+    │  (Zero-Know)    │
+    └────────┬────────┘
+             │
+    ┌────────▼────────┐
+    │  MITM Attacker  │
+    │   (Blocked)     │
+    └─────────────────┘
+```
+
+### Core Modules
+
+**crypto_backend.py**
+- `CryptoBackend` class: Unified PQC/RSA abstraction
+- `generate_keypair()`: ML-KEM-512 + ML-DSA-44 key generation
+- `_pqc_encrypt_session_key()`: Kyber encapsulation
+- `_pqc_decrypt_session_key()`: Kyber decapsulation
+- `_pqc_sign()`: Dilithium signature generation
+- `_pqc_verify()`: Dilithium signature verification
+
+**unified_demo.py**
+- Flask web server with WebSocket support
+- `/api/device/keygen`: Generate quantum-safe keypairs
+- `/api/message/send`: Encrypt and transmit messages
+- `/api/attack/simulate`: Trigger MITM attacks
+- `/api/satellite/toggle`: Switch between satellite/mesh
+- Real-time logging with detailed cryptographic steps
+
+**mitm_simulator/**
+- Realistic attack vector simulation
+- Decryption attempts (fail - quantum-resistant)
+- Packet tampering (detected by GCM)
+- Replay attacks (blocked by nonce cache)
+
+**pcap_generator/**
+- Wireshark-compatible packet capture
+- Evidence generation for security audits
+- Shows encrypted traffic patterns
+
+## 🌟 What Makes Q-SAFE Unique
+
+### 1. **NIST-Standardized PQC (2024)**
+- Most systems still use vulnerable RSA/ECC
+- Q-SAFE uses **FIPS 203 (ML-KEM)** and **FIPS 204 (ML-DSA)**
+- Future-proof against quantum computers
+
+### 2. **Educational Transparency**
+- **8-step detailed logging** of every cryptographic operation
+- See ciphertexts, signatures, and keys in real-time
+- Learn how post-quantum cryptography works
+- Perfect for security education and auditing
+
+### 3. **Live Attack Simulation**
+- Built-in MITM simulator demonstrates security
+- Watch attacks fail in real-time
+- **0% success rate** proves quantum resistance
+- Interactive attack triggers for demonstration
+
+### 4. **Military-Grade Resilience**
+- Zero-knowledge satellite (end-to-end encryption)
+- Automatic mesh fallback on satellite failure
+- Self-destruct protocol on device capture
+- Forward secrecy with ephemeral session keys
+
+### 5. **Complete Working System**
+- Not just theory - fully functional implementation
+- Interactive web dashboard
+- Real-time visualization
+- PCAP evidence generation for Wireshark
+
+### 6. **Hybrid Architecture**
+- PQC for key exchange (quantum-safe)
+- AES-256 for message encryption (performance)
+- Dilithium for authentication (quantum-safe)
+- Best of both worlds: security + speed
 
 ## 🛠️ Technical Architecture
 
