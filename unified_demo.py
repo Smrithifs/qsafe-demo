@@ -772,11 +772,8 @@ def view_report():
 def launch_tool():
     return jsonify({'success': False, 'message': 'Tool launching not configured'})
 
-if __name__ == '__main__':
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
-     print("Q-SAFE Unified Demo Starting...")
-    socketio.run(app, host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    print("Running locally only")
+    socketio.run(app, host="0.0.0.0", port=5000)
 
     
